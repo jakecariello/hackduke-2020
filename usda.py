@@ -20,7 +20,7 @@ def searchFoods(keywords):
     return top_match
 
 """
-RETURNS: ingredients for survey food by fdc_id
+RETURNS: ingredients for survey food by fdc_id its lit
 """
 def getIngredients(fdc_id):
     url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + config.USDA_API_KEY 
@@ -34,6 +34,12 @@ def allergyCheck(allergies, ingredients):
     allergies_found = list()
     ingredients_str = ' '.join(ingredients).lower()
     for allergy in allergies:
+        #get ingredient keywords for each allergy
+        #see if any of the ingredient keywords show up in ingredients_str
+        
+        #what about the other direction?
+
+        
         if allergy.lower() in ingredients_str:
             allergies_found.append(allergy)
     return allergies_found
@@ -43,6 +49,6 @@ def allergyCheck(allergies, ingredients):
 meal_name = "Vegetable Lasagna"
 food_match = searchFoods(meal_name)
 meal_ingredients = getIngredients(food_match["fdcId"])
-my_allergies = ["Milk","Egg","Gluten","Bananas","Mustard"]
+my_allergies = ["Dairy","Egg","Gluten","Bananas","Mustard"]
 print( allergyCheck(my_allergies,meal_ingredients) )
 
