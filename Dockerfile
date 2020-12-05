@@ -6,7 +6,10 @@ VOLUME ["/app"]
 WORKDIR /app
 COPY . .
 
+# run installation
+RUN bash scripts/install.sh
 
-RUN pip install pipenv
-RUN pipenv install --deploy --system
-# CMD exec gunicorn --bind :$PORT --workers 1 --worker-class uvicorn.workers.UvicornWorker  --threads 8 app.main:app
+# expose port -> will listen to this port
+EXPOSE 8080
+
+ENTRYPOINT ["bash", "scripts/start.sh"]
