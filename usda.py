@@ -30,9 +30,19 @@ def getIngredients(fdc_id):
     ingredients = [x['ingredientDescription'] for x in ingredients]
     return ingredients
 
+def allergyCheck(allergies, ingredients):
+    allergies_found = list()
+    ingredients_str = ' '.join(ingredients).lower()
+    for allergy in allergies:
+        if allergy.lower() in ingredients_str:
+            allergies_found.append(allergy)
+    return allergies_found
+
 
 # Example
 meal_name = "Vegetable Lasagna"
 food_match = searchFoods(meal_name)
 meal_ingredients = getIngredients(food_match["fdcId"])
-print(meal_ingredients)
+my_allergies = ["Milk","Egg","Gluten","Bananas","Mustard"]
+print( allergyCheck(my_allergies,meal_ingredients) )
+
