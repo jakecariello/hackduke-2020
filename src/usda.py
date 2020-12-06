@@ -17,14 +17,16 @@ RETURNS: top match for keyword search, filtered by "survey" datatype (as opposed
 def searchFoods(keywords):
     from app import app
     with app.app_context():
-        #filters by survey, vs branded foods
         query = urlencode({"query":keywords, "dataType":"Survey (FNDDS)"})
-        getfoods_url = BASE_URL + "/foods/search?" + "api_key=" + os.getenv('USDA_API_KEY') + "&" + query
+        getfoods_url = BASE_URL + "/foods/search?" + "api_key=" + config.USDA_API_KEY + "&" + query
         response = requests.get(getfoods_url)
         jsonresponse = json.loads(response.text)
-        foods = jsonresponse["foods"]
-        top_match = foods[0]
-        return top_match
+        try: 
+            foods = jsonresponse["foods"]
+            top_match = foods[0]
+            return top_match
+        except:
+            return
 
 """
 RETURNS: ingredients for survey food by fdc_id its lit
@@ -32,7 +34,7 @@ RETURNS: ingredients for survey food by fdc_id its lit
 def getIngredients(fdc_id):
     from app import app
     with app.app_context():
-        url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + os.getenv('USDA_API_KEY')
+        url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + config.USDA_API_KEY 
         response = requests.get(url)
         if response.status_code == 200:
             jsonresponse = json.loads(response.text)
@@ -43,30 +45,19 @@ def getIngredients(fdc_id):
             print("ERROR " + str(response.status_code) )
             return
 
-def allergyCheck(allergies, ingredients):
+def allergyCheck(allergy_keywords, ingredients):
     from app import app
     with app.app_context():
-        allergies_found = set()
+        if not ingredients:
+            return set()
+
+        allergies_found = False
         ingredients_str = ' '.join(ingredients).lower()
-        for allergy in allergies:
 
-            if allergy.lower() in ingredients_str:
-                allergies_found.add(allergy)
-
-            keywords = []
-            try:
-                allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
-            except Exception:
-                db.create_all()
-                allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
-
-            if allergy_obj:
-                keywords = IngredientKeyword.query.filter_by(allergy_id=allergy_obj.id)
-
-            for keyword in keywords:
-                ingredient = keyword.keyword
-                if ingredient.lower() in ingredients_str:
-                    allergies_found.add(allergy)
+        for kword in allergy_keywords:
+            if kword.keyword.lower() in ingredients_str:
+                # allergies_found.add(kword)
+                allergies_found = True
 
         return allergies_found
 
@@ -76,23 +67,33 @@ def allergyCheck(allergies, ingredients):
 def bigBlackBox(menu, allergies):
     from app import app
     with app.app_context():
-        #list of meals from this restaurant, which we then populate with their allergen info
-        full = dict()
-        good = dict()
+        full = []
+        good = []
+        allergy_keywords = list()
+        for allergy in allergies:
+            keywords = list()
+            allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
+
+            if allergy_obj:
+                keywords = IngredientKeyword.query.filter_by(allergy_id=allergy_obj.id)
+
+            #allergy_keywords[allergy] = keywords
+            allergy_keywords.extend(keywords)
+
         for meal in menu:
             #find the ingredients for this meal according to API and return it
             food_match = searchFoods(meal)
-            this_meal_ingredients = getIngredients(food_match["fdcId"])
+            if food_match:
+                this_meal_ingredients = getIngredients(food_match["fdcId"])
 
-            #check against our allergens and add the allergens that VIOLATE our HEALTH
-            ahshitwegotallergies = allergyCheck(allergies, this_meal_ingredients)
+                #check against our allergens and add the allergens that VIOLATE our HEALTH
+                gotallergies = allergyCheck(allergy_keywords, this_meal_ingredients)
+                #add to full list (check if works?)
+                full.append(meal)
 
-            #add to full list (check if works?)
-            full[meal] = ahshitwegotallergies
-
-            #add to good list
-            if not ahshitwegotallergies:
-                good[meal] = ahshitwegotallergies
+                #add to good list
+                if not gotallergies:
+                    good.append(meal)
 
         return full, good
 
