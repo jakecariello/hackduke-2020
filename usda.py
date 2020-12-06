@@ -54,14 +54,50 @@ def allergyCheck(allergies, ingredients):
                 allergies_found.add(allergy)
 
     return allergies_found
-#all your stuff updated?yes
-# Example
-meal_name = "Banana Bread"
-food_match = searchFoods(meal_name)
-meal_ingredients = getIngredients(food_match["fdcId"])
-my_allergies = ["Dairy","Egg","Gluten","Banana","Mustard"]
-if meal_ingredients:
-    print( allergyCheck(my_allergies,meal_ingredients) )
-else:
-    print("error")
 
+#pass in ALL the menu items, one by one, into allergyCheck, along with the set of all allergens ... 
+#is it necessary to pass in all allergens as a variable? why not keep global? nvm maybe not cause it changes per search
+
+def bigBlackBox(menu, allergies):
+    #list of meals from this restaurant, which we then populate with their allergen info
+    full = dict()
+    good = dict()
+    for meal in menu:
+        #find the ingredients for this meal according to API and return it
+        food_match = searchFoods(meal)
+        this_meal_ingredients = getIngredients(food_match["fdcId"])
+
+        #check against our allergens and add the allergens that VIOLATE our HEALTH
+        ahshitwegotallergies = allergyCheck(allergies, this_meal_ingredients)
+
+        #add to full list (check if works?)
+        full[meal] = ahshitwegotallergies
+
+        #add to good list
+        if not ahshitwegotallergies:
+            good[meal] = ahshitwegotallergies
+
+    return full + " and now the good list only " + good
+
+# Example
+#meal_name = "Pad Thai"
+#food_match = searchFoods(meal_name)
+#meal_ingredients = getIngredients(food_match["fdcId"])
+
+##USER INPUT HERE
+my_allergies = ["Dairy","Egg","Gluten","Bananas","Mustard"]
+#AND HERE TOO
+the_menu = ["Cheese Puffs", "Strawberry Milkshake", "Banana Pie"]
+#lucas is giving these with descriptions
+# if there is a description, append that with this meal ingredients
+#otherwise ignore, (or still append)
+# find them
+
+#turn the_menu into tuples 
+#the_menu 
+
+# [ (“Cheese Puffs”, “description”), (“Strawberry milkshake”, “description”) ]
+
+
+#print( allergyCheck(my_allergies,meal_ingredients) )
+print( bigBlackBox(the_menu, my_allergies))
