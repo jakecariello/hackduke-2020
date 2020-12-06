@@ -1,8 +1,8 @@
 import requests
 from urllib.parse import urlencode
 import urllib.parse
-import json
 import config
+import json
 
 
 BASE_URL = "https://us-restaurant-menus.p.rapidapi.com"
@@ -10,12 +10,14 @@ RESTAURANTS = "/restaurants"
 RESTAURANT = "/restaurant"
 MENU_ITEMS = "/menuitems"
 SEARCH_GEO = "/search/geo"
-API_KEY = config.DOCUMENU_API_KEY
+API_KEY = config.US_MENU_API_KEY
+RAPIDAPI_KEY = config.RAPIDAPI_KEY
+RAPIDAPI_HOST = config.RAPIDAPI_HOST
 
 headers = {
     'x-api-key': API_KEY,
-    'x-rapidapi-key': "6b4aa70838msh4638925dda8ae1cp172cb7jsn75c6e15c5956",
-    'x-rapidapi-host': "us-restaurant-menus.p.rapidapi.com"
+    'x-rapidapi-key': RAPIDAPI_KEY,
+    'x-rapidapi-host': RAPIDAPI_HOST
     }
 
 
@@ -73,6 +75,5 @@ def getCoordinates(address):
     url = 'https://nominatim.openstreetmap.org/search/' + urllib.parse.quote(address) + '?format=json'
     response = requests.get(url).json()
     return response[0]["lat"], response[0]["lon"]
-
 
 
