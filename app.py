@@ -1,17 +1,21 @@
+# load environment variables before other imports!
+from dotenv import load_dotenv
+load_dotenv()
+
+# other imports
 import os
-from flask import flash, Flask, render_template, request, redirect, url_for, session, current_app as app, Response
+from flask import flash, Flask, render_template, request, redirect, url_for, session, Response
 from flask_sqlalchemy import SQLAlchemy
-import config
 import src.RestaurantMenuAPI as rma
 from sqlalchemy.sql import text
 import json
-from src.shared import AlchemyEncoder, db, Methods as M
+from src.shared import AlchemyEncoder, db, Methods as M, app
 from src.models import Allergy, IngredientKeyword
-import usda
+import src.usda as usda
+
 
 # create app
-app = Flask(__name__)
-app.secret_key = config.APP_SECRET_KEY
+app.secret_key = os.getenv('APP_SECRET_KEY')
 
 # fetch db connection information
 try:
@@ -91,4 +95,3 @@ PORT = os.getenv('PORT')
 
 if __name__ == "__main__":
      app.run(host=HOST, port=PORT, debug=True)
-

@@ -7,3 +7,4 @@ cloud_sql_proxy
 go.mod
 go.sum
 .empty/
+.env
