@@ -1,6 +1,10 @@
 import os
+from flask import flash, Flask, render_template, request, redirect, url_for, session, current_app as app, Response
+from flask_sqlalchemy import SQLAlchemy
+import config
+import src.RestaurantMenuAPI as rma
+from sqlalchemy.sql import text
 import json
-from flask import Flask, render_template, request, redirect, session, Response
 from src.shared import AlchemyEncoder, db, Methods as M
 from src.models import Allergy, IngredientKeyword
 
@@ -55,15 +59,13 @@ def main_view():
     return restaurant_results(address)
 
 @app.route("/restaurant_results")
-def restaurant_results(address):
+def restaurant_results(address,radius=3):
     results = []
-    #results = getNearbyRestaurants(address)
-    results = [
-        ("Chipotle",
-        1234),
-        ("Amy's Kitchen",
-        1233)]
-    #GO TO LUCAS'S FUNCTIONS
+    restoIDs = rma.getRestaurantIDsInRadius(address, radius)
+    for restoid in restoIDs[:50]:
+        resto = rma.getRestaurant(restoid)
+        toAdd = {"name":resto["restaurant_name"],"id":resto["restaurant_id"], "address":resto["address"]["formatted"], "cuisines":resto["cuisines"]}
+        results.append( toAdd )
     if not results:
         #flash('No results found!')
         print('No results found!')
@@ -86,4 +88,5 @@ HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
 
 if __name__ == "__main__":
-    app.run(host=HOST, port=PORT, debug=True)
+     app.run(host=HOST, port=PORT, debug=True)
+

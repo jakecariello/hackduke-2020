@@ -22,8 +22,10 @@
         {% for restaurant in results %}
         <div class="restaurant-row">
             <h1>
-                <a href="/restaurant/{{restaurant[1]}}">{{restaurant[0]}}</a>
+                <a href="/restaurant/{{restaurant['id']}}">{{restaurant['name']}}</a>
             </h1>
+            <h2>{{restaurant['address']}}</h2>
+            <h2>{{restaurant['cuisines']}}</h2>
         </div>
         {% endfor %}
     </div>
