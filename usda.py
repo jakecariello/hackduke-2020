@@ -2,9 +2,12 @@ import requests
 import json
 import config
 from urllib.parse import urlencode
-from app import Allergy, IngredientKeyword, db
+from app import Allergy, IngredientKeyword, app
+from src.shared import db
+
 
 BASE_URL = "https://api.nal.usda.gov/fdc/v1"
+app.app_context().push()
 
 """
 Searches FoodData Central for foods that match keyword description 
@@ -77,7 +80,7 @@ def bigBlackBox(menu, allergies):
         if not ahshitwegotallergies:
             good[meal] = ahshitwegotallergies
 
-    return full + " and now the good list only " + good
+    return full, good
 
 # Example
 #meal_name = "Pad Thai"
