@@ -2,6 +2,7 @@ import os
 from flask import flash, Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 import config
+import src.RestaurantMenuAPI as rma
 
 #open sesame
 app = Flask(__name__)
@@ -40,15 +41,13 @@ def main_view():
     return restaurant_results(address)
 
 @app.route("/restaurant_results")
-def restaurant_results(address):
+def restaurant_results(address,radius=3):
     results = []
-    #results = getNearbyRestaurants(address)
-    results = [
-        ("Chipotle",
-        1234),
-        ("Amy's Kitchen",
-        1233)]
-    #GO TO LUCAS'S FUNCTIONS
+    restoIDs = rma.getRestaurantIDsInRadius(address, radius)
+    for restoid in restoIDs:
+        resto = rma.getRestaurant(restoid)
+        toAdd = {"name":resto["restaurant_name"],"id":resto["restaurant_id"], "address":resto["address"]["formatted"], "cuisines":resto["cuisines"]}
+        results.add( toAdd )
     if not results:
         #flash('No results found!')
         print('No results found!')
@@ -68,4 +67,5 @@ def restaurant_page(restaurant_id):
 
 
 if __name__ == "__main__":
-    app.run(host=HOST, port=PORT, debug=True)
+     app.run(host=HOST, port=PORT, debug=True)
+

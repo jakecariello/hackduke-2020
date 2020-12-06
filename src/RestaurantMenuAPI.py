@@ -75,5 +75,3 @@ def getCoordinates(address):
     url = 'https://nominatim.openstreetmap.org/search/' + urllib.parse.quote(address) + '?format=json'
     response = requests.get(url).json()
     return response[0]["lat"], response[0]["lon"]
-
-
