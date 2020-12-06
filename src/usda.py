@@ -45,7 +45,7 @@ def getIngredients(fdc_id):
             print("ERROR " + str(response.status_code) )
             return
 
-def allergyCheck(allergies, ingredients):
+def allergyCheck(allergy_keywords, ingredients):
     from app import app
     with app.app_context():
         if not ingredients:
