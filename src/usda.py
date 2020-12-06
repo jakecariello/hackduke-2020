@@ -1,9 +1,9 @@
+import os
 import requests
 import json
-import config
 from urllib.parse import urlencode
-from app import Allergy, IngredientKeyword, app
-from src.shared import db
+from .models import Allergy, IngredientKeyword
+from .shared import db, app
 
 
 BASE_URL = "https://api.nal.usda.gov/fdc/v1"
@@ -16,7 +16,7 @@ RETURNS: top match for keyword search, filtered by "survey" datatype (as opposed
 def searchFoods(keywords):
     #filters by survey, vs branded foods
     query = urlencode({"query":keywords, "dataType":"Survey (FNDDS)"})
-    getfoods_url = BASE_URL + "/foods/search?" + "api_key=" + config.USDA_API_KEY + "&" + query
+    getfoods_url = BASE_URL + "/foods/search?" + "api_key=" + os.getenv('USDA_API_KEY') + "&" + query
     response = requests.get(getfoods_url)
     jsonresponse = json.loads(response.text)
     foods = jsonresponse["foods"]
@@ -27,7 +27,7 @@ def searchFoods(keywords):
 RETURNS: ingredients for survey food by fdc_id its lit
 """
 def getIngredients(fdc_id):
-    url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + config.USDA_API_KEY 
+    url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + os.getenv('USDA_API_KEY')
     response = requests.get(url)
     if response.status_code == 200:
         jsonresponse = json.loads(response.text)
@@ -47,7 +47,12 @@ def allergyCheck(allergies, ingredients):
             allergies_found.add(allergy)
 
         keywords = []
-        allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
+        try:
+            allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
+        except Exception:
+            db.create_all()
+            allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
+
         if allergy_obj:
             keywords = IngredientKeyword.query.filter_by(allergy_id=allergy_obj.id)
 
@@ -101,6 +106,6 @@ the_menu = ["Cheese Puffs", "Strawberry Milkshake", "Banana Pie"]
 
 # [ (“Cheese Puffs”, “description”), (“Strawberry milkshake”, “description”) ]
 
-
-#print( allergyCheck(my_allergies,meal_ingredients) )
-print( bigBlackBox(the_menu, my_allergies))
+if __name__ == "__main__":
+    #print( allergyCheck(my_allergies,meal_ingredients) )
+    print( bigBlackBox(the_menu, my_allergies))

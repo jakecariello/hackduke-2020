@@ -2,6 +2,12 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 import json
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+
+
+# create shared app instance
+app = Flask(__name__)
+
 
 # create global db connection instance
 db = SQLAlchemy()
