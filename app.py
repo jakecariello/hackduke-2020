@@ -10,6 +10,7 @@ from src.models import Allergy, IngredientKeyword
 
 # create app
 app = Flask(__name__)
+app.secret_key = config.APP_SECRET_KEY
 
 # fetch db connection information
 try:
@@ -80,7 +81,7 @@ def restaurant_page(restaurant_id):
     #results = getMenu(restaurant_id)
     menu_items = [("Menu Item 1","Menu Item 1 Description"),("Menu Item 2","Menu Item 2 Description")]
     user_allergies = session['allergies']
-    #menu_with_allergens = filterMenu(menu_items,user_allergies)
+    menu_items = rma.getMenuItems(restaurant_id)
     return render_template("restaurant_menu_page.html",menu_items=menu_items)
 
 
