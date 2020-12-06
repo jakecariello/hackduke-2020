@@ -26,11 +26,14 @@ RETURNS: ingredients for survey food by fdc_id its lit
 def getIngredients(fdc_id):
     url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + config.USDA_API_KEY 
     response = requests.get(url)
-    jsonresponse = json.loads(response.text)
-    print(response.status_code)
-    ingredients = jsonresponse["inputFoods"] #"inputFoods" throws error for survey foods, which have "ingredients"
-    ingredients = [x['ingredientDescription'] for x in ingredients]
-    return ingredients
+    if response.status_code == 200:
+        jsonresponse = json.loads(response.text)
+        ingredients = jsonresponse["inputFoods"] #"inputFoods" throws error for survey foods, which have "ingredients"
+        ingredients = [x['ingredientDescription'] for x in ingredients]
+        return ingredients
+    else:
+        print("ERROR " + str(response.status_code) )
+        return
 
 def allergyCheck(allergies, ingredients):
     allergies_found = set()
@@ -51,7 +54,6 @@ def allergyCheck(allergies, ingredients):
                 allergies_found.add(allergy)
 
     return allergies_found
-
 
 #pass in ALL the menu items, one by one, into allergyCheck, along with the set of all allergens ... 
 #is it necessary to pass in all allergens as a variable? why not keep global? nvm maybe not cause it changes per search
@@ -99,4 +101,3 @@ the_menu = ["Cheese Puffs", "Strawberry Milkshake", "Banana Pie"]
 
 #print( allergyCheck(my_allergies,meal_ingredients) )
 print( bigBlackBox(the_menu, my_allergies))
-
