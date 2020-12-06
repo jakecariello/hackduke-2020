@@ -12,7 +12,14 @@ build :
 
 .PHONY: run
 run :
-	docker run --mount src="$$(pwd)",target=/app,type=bind --env HOST=0.0.0.0 --env PORT=8080 -p 8080:8080 ${IMAGE_TAG}
+	docker run -it \
+		--mount src="$$(pwd)",target=/app,type=bind \
+		--env HOST=0.0.0.0 \
+		--env PORT=8080 \
+		--env INSTANCE_CONNECTION_NAME=hackduke-2020-brohke:us-east1:hackduke-2020 \
+		-p 8080:8080 \
+		--entrypoint bash \
+		 ${IMAGE_TAG} scripts/local_entrypoint.sh
 
 .PHONY: fresh
 fresh : clean build run

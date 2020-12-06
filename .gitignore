@@ -3,3 +3,4 @@ __pycache__/
 .vscode/
 .idea/
 config.py
+cloud_sql_proxy
