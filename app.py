@@ -7,6 +7,7 @@ from sqlalchemy.sql import text
 import json
 from src.shared import AlchemyEncoder, db, Methods as M
 from src.models import Allergy, IngredientKeyword
+import usda
 
 # create app
 app = Flask(__name__)
@@ -34,7 +35,6 @@ except Exception as e:
 # initialize db connection with above information
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
-
 
 
 @app.route("/test-db", methods=[M.GET, M.POST])
@@ -82,6 +82,7 @@ def restaurant_page(restaurant_id):
     menu_items = [("Menu Item 1","Menu Item 1 Description"),("Menu Item 2","Menu Item 2 Description")]
     user_allergies = session['allergies']
     menu_items = rma.getMenuItems(restaurant_id)
+    full, good = usda.bigBlackBox(menu_items, user_allergies)
     return render_template("restaurant_menu_page.html",menu_items=menu_items)
 
 
