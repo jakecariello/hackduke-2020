@@ -13,6 +13,7 @@ import json
 from src.shared import AlchemyEncoder, db, Methods as M, routes as db_routes
 from src.models import Allergy, IngredientKeyword
 import src.usda as usda
+from src.db_population.queries import get_allergies
 
 # create app
 app = Flask(__name__)
@@ -66,7 +67,7 @@ def test_db():
 @app.route("/", methods=[M.GET, M.POST])
 def main_view():
     print(os.getcwd())
-    all_allergens = ["Egg","Gluten","Peanuts","Shellfish","Dairy","Mustard"]
+    all_allergens = [allergy['name'] for allergy in get_allergies().get_json()]
     if request.method == 'GET':
         return render_template("search_page_v0.html",allergens=all_allergens)
     address = request.form['address'] #don't have this form set up rn
