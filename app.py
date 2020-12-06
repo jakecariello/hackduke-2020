@@ -75,15 +75,23 @@ def restaurant_results(address,radius=3):
         # display results
         return render_template('restaurant_results.html', results=results)
 
-@app.route('/restaurant/<restaurant_id>', methods=[M.GET])
+@app.route('/restaurant/<restaurant_id>', methods=[M.GET,M.POST])
 def restaurant_page(restaurant_id):
+    if request.method == 'POST':
+        return restaurant_page_full(restaurant_id)
     menu_items = []
     #results = getMenu(restaurant_id)
     #menu_items = [("Menu Item 1","Menu Item 1 Description"),("Menu Item 2","Menu Item 2 Description")]
     user_allergies = session['allergies']
     menu_items = rma.getMenuItems(restaurant_id)
     full, good = usda.bigBlackBox(menu_items, user_allergies)
+    session['full_menu'] = full
     return render_template("restaurant_menu_page.html",menu_items=good)
+
+@app.route('/restaurant/<restaurant_id>/full', methods=[M.GET])
+def restaurant_page_full(restaurant_id):
+    full = session['full_menu']
+    return render_template("restaurant_menu_page.html",menu_items=full)
 
 
 HOST = os.getenv('HOST')
