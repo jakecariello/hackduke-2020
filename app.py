@@ -63,7 +63,7 @@ def main_view():
 def restaurant_results(address,radius=3):
     results = []
     restoIDs = rma.getRestaurantIDsInRadius(address, radius)
-    for restoid in restoIDs[:50]:
+    for restoid in restoIDs[:10]:
         resto = rma.getRestaurant(restoid)
         toAdd = {"name":resto["restaurant_name"],"id":resto["restaurant_id"], "address":resto["address"]["formatted"], "cuisines":resto["cuisines"]}
         results.append( toAdd )
@@ -79,11 +79,11 @@ def restaurant_results(address,radius=3):
 def restaurant_page(restaurant_id):
     menu_items = []
     #results = getMenu(restaurant_id)
-    menu_items = [("Menu Item 1","Menu Item 1 Description"),("Menu Item 2","Menu Item 2 Description")]
+    #menu_items = [("Menu Item 1","Menu Item 1 Description"),("Menu Item 2","Menu Item 2 Description")]
     user_allergies = session['allergies']
     menu_items = rma.getMenuItems(restaurant_id)
     full, good = usda.bigBlackBox(menu_items, user_allergies)
-    return render_template("restaurant_menu_page.html",menu_items=menu_items)
+    return render_template("restaurant_menu_page.html",menu_items=good)
 
 
 HOST = os.getenv('HOST')

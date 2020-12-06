@@ -19,9 +19,12 @@ def searchFoods(keywords):
     getfoods_url = BASE_URL + "/foods/search?" + "api_key=" + config.USDA_API_KEY + "&" + query
     response = requests.get(getfoods_url)
     jsonresponse = json.loads(response.text)
-    foods = jsonresponse["foods"]
-    top_match = foods[0]
-    return top_match
+    try: 
+        foods = jsonresponse["foods"]
+        top_match = foods[0]
+        return top_match
+    except:
+        return
 
 """
 RETURNS: ingredients for survey food by fdc_id its lit
@@ -38,23 +41,17 @@ def getIngredients(fdc_id):
         print("ERROR " + str(response.status_code) )
         return
 
-def allergyCheck(allergies, ingredients):
-    allergies_found = set()
+def allergyCheck(allergy_keywords, ingredients):
+    if not ingredients:
+        return set()
+
+    allergies_found = False
     ingredients_str = ' '.join(ingredients).lower()
-    for allergy in allergies:
 
-        if allergy.lower() in ingredients_str:
-            allergies_found.add(allergy)
-
-        keywords = []
-        allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
-        if allergy_obj:
-            keywords = IngredientKeyword.query.filter_by(allergy_id=allergy_obj.id)
-
-        for keyword in keywords:
-            ingredient = keyword.keyword
-            if ingredient.lower() in ingredients_str:
-                allergies_found.add(allergy)
+    for kword in allergy_keywords:
+        if kword.keyword.lower() in ingredients_str:
+            # allergies_found.add(kword)
+            allergies_found = True
 
     return allergies_found
 
@@ -63,22 +60,33 @@ def allergyCheck(allergies, ingredients):
 
 def bigBlackBox(menu, allergies):
     #list of meals from this restaurant, which we then populate with their allergen info
-    full = dict()
-    good = dict()
+    full = []
+    good = []
+    allergy_keywords = list()
+    for allergy in allergies:
+        keywords = list()
+        allergy_obj = Allergy.query.filter_by(name=allergy.lower()).first()
+
+        if allergy_obj:
+            keywords = IngredientKeyword.query.filter_by(allergy_id=allergy_obj.id)
+
+        #allergy_keywords[allergy] = keywords
+        allergy_keywords.extend(keywords)
+
     for meal in menu:
         #find the ingredients for this meal according to API and return it
         food_match = searchFoods(meal)
-        this_meal_ingredients = getIngredients(food_match["fdcId"])
+        if food_match:
+            this_meal_ingredients = getIngredients(food_match["fdcId"])
 
-        #check against our allergens and add the allergens that VIOLATE our HEALTH
-        ahshitwegotallergies = allergyCheck(allergies, this_meal_ingredients)
+            #check against our allergens and add the allergens that VIOLATE our HEALTH
+            gotallergies = allergyCheck(allergy_keywords, this_meal_ingredients)
+            #add to full list (check if works?)
+            full.append(meal)
 
-        #add to full list (check if works?)
-        full[meal] = ahshitwegotallergies
-
-        #add to good list
-        if not ahshitwegotallergies:
-            good[meal] = ahshitwegotallergies
+            #add to good list
+            if not gotallergies:
+                good.append(meal)
 
     return full, good
 
@@ -88,9 +96,9 @@ def bigBlackBox(menu, allergies):
 #meal_ingredients = getIngredients(food_match["fdcId"])
 
 ##USER INPUT HERE
-my_allergies = ["Dairy","Egg","Gluten","Bananas","Mustard"]
-#AND HERE TOO
-the_menu = ["Cheese Puffs", "Strawberry Milkshake", "Banana Pie"]
+# my_allergies = ["Dairy","Egg","Gluten","Bananas","Mustard"]
+# #AND HERE TOO
+# the_menu = ["Cheese Puffs", "Strawberry Milkshake", "Banana Pie"]
 #lucas is giving these with descriptions
 # if there is a description, append that with this meal ingredients
 #otherwise ignore, (or still append)
@@ -103,4 +111,4 @@ the_menu = ["Cheese Puffs", "Strawberry Milkshake", "Banana Pie"]
 
 
 #print( allergyCheck(my_allergies,meal_ingredients) )
-print( bigBlackBox(the_menu, my_allergies))
+# print( bigBlackBox(the_menu, my_allergies))
