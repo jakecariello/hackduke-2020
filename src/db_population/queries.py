@@ -14,6 +14,16 @@ def get_allergies():
         mimetype=str(ResponseTypes.JSON)
     )
 
+def get_ingredient_keywords():
+
+    result = db.session.query(IngredientKeyword)
+
+    return Response(
+        json.dumps([r for r in result], cls=AlchemyEncoder),
+        status=ResponseCodes.SUCCESS,
+        mimetype=str(ResponseTypes.JSON)
+    )
+
 def create_ingredient_keyword():
 
     data = request_data()

@@ -79,8 +79,9 @@ def request_data():
         return request.args
     return dict()
 
-from .db_population.queries import create_allergy, create_ingredient_keyword, get_allergies
+from .db_population.queries import create_allergy, create_ingredient_keyword, get_allergies, get_ingredient_keywords
 routes = Blueprint('db_routes', __name__)
 routes.route('/create_allergy', methods=[Methods.POST])(create_allergy)
 routes.route('/create_ingredient_keyword', methods=[Methods.POST])(create_ingredient_keyword)
 routes.route('/get_allergies', methods=[Methods.GET])(get_allergies)
+routes.route('/get_ingredient_keywords', methods=[Methods.GET])(get_ingredient_keywords)
