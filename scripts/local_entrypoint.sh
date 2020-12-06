@@ -1,7 +1,7 @@
 
 source ~/.bashrc
 conda activate app
-conda install -y --file /app/requirements.txt
+conda install -c conda-forge -y --file /app/requirements.txt
 
 source /root/google-cloud-sdk/path.bash.inc
 
