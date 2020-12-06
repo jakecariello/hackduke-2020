@@ -1,7 +1,7 @@
+import os
 import requests
 from urllib.parse import urlencode
 import urllib.parse
-import config
 import json
 
 
@@ -10,9 +10,9 @@ RESTAURANTS = "/restaurants"
 RESTAURANT = "/restaurant"
 MENU_ITEMS = "/menuitems"
 SEARCH_GEO = "/search/geo"
-API_KEY = config.US_MENU_API_KEY
-RAPIDAPI_KEY = config.RAPIDAPI_KEY
-RAPIDAPI_HOST = config.RAPIDAPI_HOST
+API_KEY = os.getenv('US_MENU_API_KEY')
+RAPIDAPI_KEY = os.getenv('RAPIDAPI_KEY')
+RAPIDAPI_HOST = os.getenv('RAPIDAPI_HOST')
 
 headers = {
     'x-api-key': API_KEY,

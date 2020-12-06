@@ -1,11 +1,13 @@
+import os
+import sys
 from sqlalchemy.ext.declarative import DeclarativeMeta
 import json
 from enum import Enum
 from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, Blueprint
 
 # create global db connection instance
 db = SQLAlchemy()
-
 
 # nifty json encoder for SQLAlchemy objects
 class AlchemyEncoder(json.JSONEncoder):
@@ -56,3 +58,30 @@ class ResponseTypes(str, Enum):
     
     def __str__(self):
             return self.value
+
+
+# get data from json OR form
+from flask import request
+def request_data():
+    json_available = request.get_json() is not None and len(list(request.get_json().items())) > 0
+    form_available = request.form is not None and len(list(request.form.items())) > 0
+    args_available = request.args is not None and len(request.args) > 0
+
+    valid_checks = [item for item in [json_available, form_available, args_available] if item]
+    print(f'Found {len(valid_checks)} valid source(s) of data in request.')
+    assert len(valid_checks) <= 1, 'Multiple data sources found in request. Ensure that only one of (JSON, form, args) are provided.'
+
+    if json_available:
+        return request.get_json()
+    elif form_available:
+        return request.form
+    elif args_available: 
+        return request.args
+    return dict()
+
+from .db_population.queries import create_allergy, create_ingredient_keyword, get_allergies, get_ingredient_keywords
+routes = Blueprint('db_routes', __name__)
+routes.route('/create_allergy', methods=[Methods.POST])(create_allergy)
+routes.route('/create_ingredient_keyword', methods=[Methods.POST])(create_ingredient_keyword)
+routes.route('/get_allergies', methods=[Methods.GET])(get_allergies)
+routes.route('/get_ingredient_keywords', methods=[Methods.GET])(get_ingredient_keywords)

@@ -3,6 +3,9 @@ __pycache__/
 .vscode/
 .idea/
 config.py
-cloud_sql_proxy
+cloud_sql_proxy*
 go.mod
+go.sum
 .empty/
+.env
+*.csv
