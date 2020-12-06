@@ -1,20 +1,21 @@
 # load environment variables before other imports!
+from operator import imod
 from dotenv import load_dotenv
 load_dotenv()
 
 # other imports
 import os
-from flask import flash, Flask, render_template, request, redirect, url_for, session, Response
+from flask import flash, Flask, render_template, request, redirect, url_for, session, Response, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 import src.RestaurantMenuAPI as rma
 from sqlalchemy.sql import text
 import json
-from src.shared import AlchemyEncoder, db, Methods as M, app
+from src.shared import AlchemyEncoder, db, Methods as M, routes as db_routes
 from src.models import Allergy, IngredientKeyword
 import src.usda as usda
 
-
 # create app
+app = Flask(__name__)
 app.secret_key = os.getenv('APP_SECRET_KEY')
 
 # fetch db connection information
@@ -40,6 +41,16 @@ except Exception as e:
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
+
+# register routes for db population
+app.register_blueprint(db_routes)
+
+
+@ app.route('/reset-db', methods=[M.GET])
+def reset_db():
+    db.drop_all()
+    db.create_all()
+    return 'Done.'
 
 @app.route("/test-db", methods=[M.GET, M.POST])
 def test_db():
