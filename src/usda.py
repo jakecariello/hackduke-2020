@@ -18,7 +18,7 @@ def searchFoods(keywords):
     from app import app
     with app.app_context():
         query = urlencode({"query":keywords, "dataType":"Survey (FNDDS)"})
-        getfoods_url = BASE_URL + "/foods/search?" + "api_key=" + config.USDA_API_KEY + "&" + query
+        getfoods_url = BASE_URL + "/foods/search?" + "api_key=" + os.get_env('USDA_API_KEY') + "&" + query
         response = requests.get(getfoods_url)
         jsonresponse = json.loads(response.text)
         try: 
@@ -34,7 +34,7 @@ RETURNS: ingredients for survey food by fdc_id its lit
 def getIngredients(fdc_id):
     from app import app
     with app.app_context():
-        url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + config.USDA_API_KEY 
+        url = BASE_URL + "/food/" + str(fdc_id) + "?api_key=" + os.get_env('USDA_API_KEY')
         response = requests.get(url)
         if response.status_code == 200:
             jsonresponse = json.loads(response.text)

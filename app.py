@@ -1,5 +1,4 @@
 # load environment variables before other imports!
-from operator import imod
 from dotenv import load_dotenv
 load_dotenv()
 
