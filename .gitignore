@@ -5,4 +5,5 @@ __pycache__/
 config.py
 cloud_sql_proxy
 go.mod
+go.sum
 .empty/
