@@ -44,10 +44,10 @@ def main_view():
 def restaurant_results(address,radius=3):
     results = []
     restoIDs = rma.getRestaurantIDsInRadius(address, radius)
-    for restoid in restoIDs:
+    for restoid in restoIDs[:50]:
         resto = rma.getRestaurant(restoid)
         toAdd = {"name":resto["restaurant_name"],"id":resto["restaurant_id"], "address":resto["address"]["formatted"], "cuisines":resto["cuisines"]}
-        results.add( toAdd )
+        results.append( toAdd )
     if not results:
         #flash('No results found!')
         print('No results found!')
