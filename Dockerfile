@@ -4,7 +4,7 @@ FROM continuumio/miniconda3 as base
 ENV DB_NAME=postgres
 ENV DB_PASS=pw
 ENV DB_USER=postgres
-ENV DB_HOST=10.81.0.4
+ENV DB_HOST=34.74.11.222
 
 # mount code
 VOLUME ["/app"]
