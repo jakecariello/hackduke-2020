@@ -1,12 +1,37 @@
 import os
-from flask import flash, Flask, render_template, request, redirect, url_for, session
+from flask import flash, Flask, render_template, request, redirect, url_for, session, current_app as app
 from flask_sqlalchemy import SQLAlchemy
 import config
+from sqlalchemy.sql import text
 
-#open sesame
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-app.secret_key = config.SECRET_KEY
+try:
+    db_user = os.environ["DB_USER"]
+    db_pass = os.environ["DB_PASS"]
+    db_name = os.environ["DB_NAME"]
+    db_host = os.environ["DB_HOST"]
+    # db_host = os.environ["INSTANCE_CONNECTION_NAME"]
+
+    db_user = os.environ["DB_USER"]
+    db_pass = os.environ["DB_PASS"]
+    db_name = os.environ["DB_NAME"]
+    db_socket_dir = os.environ.get("DB_SOCKET_DIR", "/cloudsql")
+    cloud_sql_connection_name = os.environ["INSTANCE_CONNECTION_NAME"]
+
+    # items = [db_user, db_pass, db_name, db_socket_dir, cloud_sql_connection_name]
+    # app.config['SQLALCHEMY_DATABASE_URI'] = f'postgres+pg8000://{db_user}:{db_pass}@/{db_name}?unix_sock={db_socket_dir}>/{cloud_sql_connection_name}/.s.PGSQL.5432'
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'postgres+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}?host=/cloudsql/{cloud_sql_connection_name}'
+    # app.config['SQLALCHEMY_DATABASE_URI'] = f'postgres+pg8000://{db_user}:{db_pass}@{db_host}/{db_name}'
+    # app.config['SQLALCHEMY_DATABASE_URI'] = f'postgres+pg8000://{db_user}:{db_pass}@/{db_name}?unix_sock=cloudsql/{cloud_sql_connection_name}/.s.PGSQL.5432'
+    print(app.config['SQLALCHEMY_DATABASE_URI'])
+
+
+except Exception:
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:////tmp/test.db'
+
+# This must be set, determine which is best for you
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 
 #aller-g
@@ -27,6 +52,7 @@ class IngredientKeyword(db.Model):
 
 HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
+
 
 @app.route("/", methods=['GET','POST'])
 def main_view():
@@ -65,7 +91,6 @@ def restaurant_page(restaurant_id):
     user_allergies = session['allergies']
     #menu_with_allergens = filterMenu(menu_items,user_allergies)
     return render_template("restaurant_menu_page.html",menu_items=menu_items)
-
 
 if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=True)
